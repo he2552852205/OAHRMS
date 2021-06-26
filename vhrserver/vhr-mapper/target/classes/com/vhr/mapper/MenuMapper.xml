@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.vhr.mapper.MenuMapper">
+    
+    <resultMap id="BaseResultMap" type="com.vhr.model.Menu">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="url" property="url" jdbcType="VARCHAR"/>
+        <result column="path" property="path" jdbcType="VARCHAR"/>
+        <result column="component" property="component" jdbcType="VARCHAR"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="iconCls" property="iconCls" jdbcType="VARCHAR"/>
+        <result column="parentId" property="parentId" jdbcType="INTEGER"/>
+        <result column="enabled" property="enabled" jdbcType="BIT"/>
+        <association property="meta" javaType="com.vhr.model.Meta">
+            <result column="keepAlive" property="keepAlive" jdbcType="BIT" />
+            <result column="requireAuth" property="requireAuth" jdbcType="BIT" />
+        </association>
+    </resultMap>
+
+    <resultMap id="MenuWithChildren" type="com.vhr.model.Menu" extends="BaseResultMap">
+        <id column="id1" property="id" />
+        <result column="name1" property="name" />
+        <collection property="children" ofType="com.vhr.model.Menu">
+            <id column="id2" property="id" />
+            <result column="name2" property="name" />
+            <collection property="children" ofType="com.vhr.model.Menu">
+                <id column="id3" property="id" />
+                <result column="name3" property="name" />
+            </collection>
+        </collection>
+    </resultMap>
+
+    <select id="getAllMenus" resultMap="MenuWithChildren">
+    SELECT
+        m1.`id` AS id1,m1.`name` AS name1,
+        m2.`id` AS id2,m2.`name` AS name2,
+        m3.`id` AS id3,m3.`name` AS name3
+    FROM menu m1 ,
+         menu m2 ,
+         menu m3
+    WHERE
+        m1.id = m2.`parentId`
+    AND
+        m2.`id` = m3.`parentId`
+    AND
+        m3.`enabled` = 1
+
+    </select>
+</mapper>
